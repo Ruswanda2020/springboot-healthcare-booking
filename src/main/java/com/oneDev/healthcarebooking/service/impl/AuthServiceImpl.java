@@ -30,7 +30,7 @@ public class AuthServiceImpl implements AuthService {
             return (UserInfo) authentication.getPrincipal();
         } catch (Exception e) {
             log.error(e.getMessage());
-            throw new ApplicationException(ExceptionType.INVALID_PASSWORD, "Invalid username or password");
+            throw new ApplicationException(ExceptionType.INVALID_PASSWORD);
         }
     }
 }
