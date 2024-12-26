@@ -155,7 +155,7 @@ public class UserServiceImpl implements UserService {
         // Cek apakah user sudah memiliki role tersebut
         Optional<UserRole> existingUserRole = userRoleRepository.existByUserIdAndRoleId(userId, role.getRoleId());
         if (existingUserRole.isPresent()) {
-            throw new IllegalArgumentException("User with ID " + userId + " already has the role with ID " + role.getRoleId());
+            throw new IllegalArgumentException("User with ID: " + userId + " already has the role with role ID: " + role.getRoleId());
         }
 
         // Buat ID untuk UserRole

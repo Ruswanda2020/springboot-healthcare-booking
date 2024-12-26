@@ -1,5 +1,7 @@
 package com.oneDev.healthcarebooking.model.request;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.oneDev.healthcarebooking.enumaration.RoleType;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
