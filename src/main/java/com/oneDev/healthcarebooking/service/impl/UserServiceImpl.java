@@ -19,6 +19,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @RequiredArgsConstructor
 @Service
@@ -53,7 +54,7 @@ public class UserServiceImpl implements UserService {
                 .build();
 
         userRepository.save(user);
-        Role role = roleRepository.findByName(RoleType.PATIENT).orElseThrow(
+        Role role = roleRepository.findByName(RoleType.SUPER_ADMIN).orElseThrow(
                 () -> new ApplicationException(ExceptionType.ROLE_NOT_FOUND)
         );
         UserRole userRoleRelation = UserRole.builder()
@@ -137,5 +138,43 @@ public class UserServiceImpl implements UserService {
         userRoleRepository.deleteByIdUserId(userId);
         userRepository.delete(user);
 
+    }
+
+    @Override @Transactional
+    public UserResponse grantUserRole(Long userId, RoleType roleType) {
+        // Cari user berdasarkan ID
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ApplicationException(ExceptionType.USER_NOT_FOUND,
+                        "User not found with ID: " + userId));
+
+        // Cari role berdasarkan nama
+        Role role = roleRepository.findByName(roleType)
+                .orElseThrow(() -> new ApplicationException(ExceptionType.ROLE_NOT_FOUND,
+                        "Role not found with name: " + roleType));
+
+        // Cek apakah user sudah memiliki role tersebut
+        Optional<UserRole> existingUserRole = userRoleRepository.existByUserIdAndRoleId(userId, role.getRoleId());
+        if (existingUserRole.isPresent()) {
+            throw new IllegalArgumentException("User with ID " + userId + " already has the role with ID " + role.getRoleId());
+        }
+
+        // Buat ID untuk UserRole
+        UserRole.UserRoleId userRoleId = new UserRole.UserRoleId();
+        userRoleId.setUserId(userId);
+        userRoleId.setRoleId(role.getRoleId());
+
+        // Buat UserRole baru
+        UserRole newUserRole = UserRole.builder()
+                .userRoleId(userRoleId)
+                .build();
+
+        // Simpan UserRole baru ke repository
+        userRoleRepository.save(newUserRole);
+
+        // Ambil semua role yang dimiliki oleh user
+        List<Role> userRoles = roleRepository.findByUserId(userId);
+
+        // Kembalikan response user dengan roles-nya
+        return UserResponse.from(user, userRoles);
     }
 }

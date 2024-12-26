@@ -11,5 +11,16 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:7.0-alpine
+    container_name: redis-healthcare-booking
+    ports:
+      - "6391:6379"
+    command: [ "redis-server", "--appendonly", "yes" ]
+    volumes:
+      - redis-data:/data
+    restart: always
+
 volumes:
   postgres_data:
+  redis-data:

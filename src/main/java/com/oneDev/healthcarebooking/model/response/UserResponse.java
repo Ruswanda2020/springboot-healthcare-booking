@@ -5,14 +5,18 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.oneDev.healthcarebooking.entity.Role;
 import com.oneDev.healthcarebooking.entity.User;
 import com.oneDev.healthcarebooking.enumaration.RoleType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class UserResponse {
 
