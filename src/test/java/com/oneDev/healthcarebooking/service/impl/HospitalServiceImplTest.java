@@ -24,11 +24,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-class HospitalServiceImplTest {
+class
+HospitalServiceImplTest {
 
     @Mock
     private HospitalRepository hospitalRepository;
-
+    
     @Mock
     private CacheService cacheService;
 
@@ -78,12 +79,14 @@ class HospitalServiceImplTest {
         assertNotNull(result);
         assertEquals(1, result.getTotalElements());
         assertEquals("testHospital", result.getContent().get(0).getName());
-        verify(hospitalRepository, times(1)).findByNameContainingIgnoreCase(anyString(), any(Pageable.class));
+        verify(hospitalRepository, times(1))
+                .findByNameContainingIgnoreCase(anyString(), any(Pageable.class));
     }
 
     @Test
     void get_shouldReturnHospitalResponseFromCache() {
-        when(cacheService.get(anyString(), eq(HospitalResponse.class))).thenReturn(Optional.of(hospitalResponse));
+        when(cacheService.get(anyString(), eq(HospitalResponse.class)))
+                .thenReturn(Optional.of(hospitalResponse));
 
         HospitalResponse result = hospitalService.get(1L);
 

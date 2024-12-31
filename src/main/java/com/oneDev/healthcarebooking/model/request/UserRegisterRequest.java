@@ -32,6 +32,6 @@ public class UserRegisterRequest {
     )
     private String password;
 
-    @NotBlank(message = "Password confirmation is required")
+    @NotBlank(message = "Passwords do not match")
     private String passwordConfirmation;
 }

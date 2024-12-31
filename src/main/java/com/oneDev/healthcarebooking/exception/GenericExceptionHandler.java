@@ -8,8 +8,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.AuthenticationException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -27,53 +27,45 @@ import java.util.Map;
 @Slf4j
 public class GenericExceptionHandler {
 
-    @ExceptionHandler({
-            ApplicationException.class,
-    })
-    @ResponseStatus(HttpStatus.NOT_FOUND)
-    public @ResponseBody ErrorResponse  handleApplicationException(HttpServletRequest req,
-                                                                   HttpServletResponse resp,
-                                                                   ApplicationException exception) {
-
+    @ExceptionHandler(ApplicationException.class)
+    public @ResponseBody ErrorResponse handleApplicationException(HttpServletRequest req,
+                                                                  HttpServletResponse resp,
+                                                                  ApplicationException exception) {
         ExceptionType type = exception.getType();
         HttpStatus status = HttpStatus.resolve(type.getHttpCode());
 
-        // Atur status HTTP pada response
-        assert status != null;
+        if (status == null) {
+            status = HttpStatus.INTERNAL_SERVER_ERROR; // Default to 500 if no valid status is found
+        }
+
+        log.error("ApplicationException handled: {} - {}", status.value(), exception.getMessage());
+
         resp.setStatus(status.value());
 
-        return  ErrorResponse.builder()
+        return ErrorResponse.builder()
                 .code(status.value())
                 .message(exception.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
-
     }
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public @ResponseBody ErrorResponse handleGenericException(HttpServletRequest req,
-                                                              HttpServletResponse resp,
-                                                              Exception exception) {
-        log.error("Terjadi error. status code: {}error message: {}", HttpStatus.INTERNAL_SERVER_ERROR, exception.getMessage());
-        if (exception instanceof AccessDeniedException ||
-                exception instanceof BadCredentialsException ||
-                exception instanceof SignatureException ||
-                exception instanceof ExpiredJwtException ||
-                exception instanceof AuthenticationException ||
-                exception instanceof InsufficientAuthenticationException
-        ) {
+    @ExceptionHandler({
+            AccessDeniedException.class,
+            BadCredentialsException.class,
+            SignatureException.class,
+            ExpiredJwtException.class,
+            AuthenticationException.class,
+            InsufficientAuthenticationException.class
+    })
+    public @ResponseBody ErrorResponse handleAuthenticationExceptions(HttpServletRequest req,
+                                                                      HttpServletResponse resp,
+                                                                      Exception exception) {
+        log.error("Authentication exception: {} - {}", HttpStatus.FORBIDDEN.value(), exception.getMessage());
 
-            resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
-            return ErrorResponse.builder()
-                    .code(HttpStatus.FORBIDDEN.value())
-                    .message(exception.getMessage())
-                    .timestamp(LocalDateTime.now())
-                    .build();
-        }
-        resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+        resp.setStatus(HttpServletResponse.SC_FORBIDDEN);
+
         return ErrorResponse.builder()
-                .code(HttpStatus.INTERNAL_SERVER_ERROR.value())
+                .code(HttpStatus.FORBIDDEN.value())
                 .message(exception.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
@@ -88,9 +80,39 @@ public class GenericExceptionHandler {
             String errorMessage = objectError.getDefaultMessage();
             errors.put(fieldName, errorMessage);
         });
+
+        log.error("Validation error: {}", errors);
+
         return ErrorResponse.builder()
                 .code(HttpStatus.BAD_REQUEST.value())
-                .message(errors.toString())
+                .message("Validation failed")
+                .errors(errors)
+                .timestamp(LocalDateTime.now())
+                .build();
+    }
+
+    @ExceptionHandler(Exception.class)
+    public @ResponseBody ErrorResponse handleGenericException(HttpServletRequest req,
+                                                              HttpServletResponse resp,
+                                                              Exception exception) {
+        HttpStatus status = HttpStatus.INTERNAL_SERVER_ERROR;
+
+        if (exception instanceof AccessDeniedException ||
+                exception instanceof BadCredentialsException ||
+                exception instanceof SignatureException ||
+                exception instanceof ExpiredJwtException ||
+                exception instanceof AuthenticationException ||
+                exception instanceof InsufficientAuthenticationException) {
+            status = HttpStatus.FORBIDDEN;
+        }
+
+        log.error("Generic exception: {} - {}", status.value(), exception.getMessage());
+
+        resp.setStatus(status.value());
+
+        return ErrorResponse.builder()
+                .code(status.value())
+                .message(exception.getMessage())
                 .timestamp(LocalDateTime.now())
                 .build();
     }
