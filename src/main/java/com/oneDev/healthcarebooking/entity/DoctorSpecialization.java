@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -29,7 +30,7 @@ public class DoctorSpecialization {
     private Long specializationId;
 
     @Column(name = "base_fee", nullable = false)
-    private Double baseFee;
+    private BigDecimal baseFee;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
