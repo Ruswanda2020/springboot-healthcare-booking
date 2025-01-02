@@ -12,5 +12,6 @@ public interface DoctorSpecializationRepository extends JpaRepository<DoctorSpec
     List<DoctorSpecialization> findByDoctorId(Long doctorId);
     List<DoctorSpecialization> findBySpecializationId(Long specializationId);
     Optional<DoctorSpecialization> findByDoctorIdAndSpecializationId(Long doctorId, Long specializationId);
+    boolean existsByDoctorIdAndSpecializationIdAndConsultationType(Long doctorId, Long specializationId, String consultationType);
 
 }

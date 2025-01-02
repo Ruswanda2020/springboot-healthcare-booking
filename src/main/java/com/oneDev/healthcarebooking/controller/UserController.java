@@ -45,14 +45,4 @@ public class UserController {
         return ResponseEntity.ok(updateUser);
     }
 
-    @DeleteMapping("/{userId}")
-    public ResponseEntity<?> deleteUser(@PathVariable("userId") Long userId){
-
-        UserInfo userInfo = userInfoHelper.getCurrentUserInfo();
-        if (!Objects.equals(userInfo.getUser().getUserId(), userId)) {
-            throw new ApplicationException(ExceptionType.FORBIDDEN, "user "+ userInfo.getUsername() + " is not allowed to delete");
-        }
-        userService.deleteById(userId);
-        return ResponseEntity.noContent().build();
-    }
 }
