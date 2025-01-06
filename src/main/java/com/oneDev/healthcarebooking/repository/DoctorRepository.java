@@ -16,7 +16,7 @@ public interface DoctorRepository extends JpaRepository<Doctor, Long> {
     List<Doctor> findByHospitalId(Long hospitalId);
     Optional<Doctor> findByUserId(Long userId);
 
-    @Query(value = "SELECT * FROM doctors WHERE " +
+    @Query(value = "SELECT * FROM doctor WHERE " +
             "LOWER(name) LIKE LOWER(CONCAT('%', :keyword, '%')) OR " +
             "LOWER(bio) LIKE LOWER(CONCAT('%', :keyword, '%'))",
             nativeQuery = true)

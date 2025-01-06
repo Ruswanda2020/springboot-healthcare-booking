@@ -53,7 +53,7 @@ public class DoctorController {
 
     @PreAuthorize("hasRole('DOCTOR')")
     @PostMapping("/{doctorId}/availabilities")
-    public ResponseEntity<DoctorResponse> updateAvailability(
+    public ResponseEntity<DoctorResponse> createAvailability(
             @PathVariable Long doctorId,
             @Valid @RequestBody DoctorAvailabilityRequest request
     ){
@@ -70,7 +70,7 @@ public class DoctorController {
     }
 
     @PreAuthorize("hasRole('DOCTOR')")
-    @PostMapping("/availabilities/{availabilitiesId}")
+    @DeleteMapping("/availabilities/{availabilitiesId}")
     public ResponseEntity<DoctorResponse> deleteAvailability(@PathVariable Long availabilitiesId){
         UserInfo userInfo = userInfoHelper.getCurrentUserInfo();
         Doctor existingDoctor = doctorService.getDoctorByUserId(userInfo.getUser().getUserId());

@@ -246,6 +246,15 @@ public class DoctorServiceImp implements DoctorService {
                 .orElseThrow(() -> new ApplicationException(ExceptionType.RESOURCE_NOT_FOUND,
                         "Doctor not found with id: " + doctorId));
 
+        // Check for duplicate availability (schedule conflict)
+        boolean isDuplicate = doctorAvailabilityRepository.existsDuplicateAvailability(
+                doctorId, request.getDate(), request.getStartTime(), request.getEndTime(), request.getConsultationType());
+
+        if (isDuplicate) {
+            throw new ApplicationException(ExceptionType.RESOURCE_CONFLICT,
+                    "Doctor already has an availability scheduled at this time.");
+        }
+
         // Create and save new doctor availability record
         DoctorAvailability doctorAvailability = DoctorAvailability.builder()
                 .doctorId(doctorId)
@@ -290,6 +299,7 @@ public class DoctorServiceImp implements DoctorService {
                             .specializationId(spec.getId())
                             .specializationName(specializationName)
                             .baseFee(hospitalDoctorFee.getFee())
+                            .hospitalFee(hospitalDoctorFee.getFee())
                             .consultationType(hospitalDoctorFee.getConsultationType())
                             .build();
                 }).toList();
@@ -299,6 +309,7 @@ public class DoctorServiceImp implements DoctorService {
                 .stream()
                 .map(doctorAvailability ->
                         AvailabilityInfo.builder()
+                                .id(doctorAvailability.getId())
                                 .isAvailable(true)
                                 .startDateTime(
                                         LocalDateTime.of(

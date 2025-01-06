@@ -71,15 +71,6 @@ public class AppointmentServiceImpl implements AppointmentService {
                         fee.getConsultationType()
                 );
 
-        System.out.println("Start Time: " + request.getStartTime());
-        System.out.println("Start Time (Seconds): " + request.getStartTime().toSecondOfDay());
-        System.out.println("End Time: " + request.getEndTime());
-        System.out.println("End Time (Seconds): " + request.getEndTime().toSecondOfDay());
-        System.out.println("Consultation Type: " + fee.getConsultationType());
-        System.out.println("avalibility : "+ isDoctorAvailable);
-
-
-
         // Jika dokter tidak tersedia, lemparkan exception
         if(!isDoctorAvailable) {
             throw new ApplicationException(ExceptionType.APPOINTMENT_CONFLICT, "Doctor is not available");

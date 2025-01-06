@@ -13,8 +13,11 @@ public enum ExceptionType {
     USERNAME_ALREADY_EXISTS("Username is already taken", 409),
     INVALID_PASSWORD("Current password is incorrect", 401),
     FORBIDDEN("Access denied", 403),
-    TOO_MANY_REQUESTS("Too many requests", 429),
-    INTERNAL_SERVER_ERROR("Internal server error", 500);
+    INTERNAL_SERVER_ERROR("Internal server error", 500),
+    APPOINTMENT_CONFLICT("Appointment conflict occurred", 409),
+    RESOURCE_CONFLICT("Resource conflict occurred", 409);
+
+
 
     private final String message;
     private final int httpCode;
