@@ -33,7 +33,8 @@ public class ApiSecurityConfig {
                     registry.requestMatchers(
                                     "/auth/**",
                                     "/v3/api-docs/**",
-                                    "/swagger-ui/**")
+                                    "/swagger-ui/**",
+                                    "/webhook/xendit/**")
                             .permitAll()
                             .anyRequest().authenticated();
                 }).sessionManagement(configure -> {
@@ -51,7 +52,7 @@ public class ApiSecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:8080", "http://localhost:5173", "https://entirely-dynamic-penguin.ngrok-free.app"));
         configuration.setAllowedMethods(List.of("*"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true);

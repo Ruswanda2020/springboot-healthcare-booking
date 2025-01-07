@@ -9,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
@@ -17,13 +18,16 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
-public class PaymentResponse {
+public class PaymentResponse implements Serializable {
     private Long id;
     private Long appointmentId;
     private BigDecimal amount;
     private String paymentMethod;
     private String transactionId;
     private PaymentStatus status;
+    private String externalId;
+    private String externalStatus;
+    private String paymentUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -35,6 +39,8 @@ public class PaymentResponse {
                 .paymentMethod(payment.getPaymentMethod())
                 .transactionId(payment.getTransactionId())
                 .status(payment.getStatus())
+                .externalId(payment.getXenditInvoiceId())
+                .externalStatus(payment.getXenditPaymentStatus())
                 .createdAt(payment.getCreatedAt())
                 .updatedAt(payment.getUpdatedAt())
                 .build();

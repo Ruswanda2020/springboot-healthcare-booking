@@ -29,7 +29,7 @@ public class AdminDoctorController {
     }
 
     @PostMapping("/{doctorId}/specialization")
-    public ResponseEntity<DoctorResponse> addDoctorSpecialization(
+        public ResponseEntity<DoctorResponse> addDoctorSpecialization(
             @PathVariable Long doctorId,
             @Valid @RequestBody DoctorSpecializationRequest request){
 

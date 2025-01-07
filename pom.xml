@@ -109,6 +109,12 @@
 			<groupId>com.fasterxml.jackson.datatype</groupId>
 			<artifactId>jackson-datatype-jsr310</artifactId>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.xendit/xendit-java-lib -->
+		<dependency>
+			<groupId>com.xendit</groupId>
+			<artifactId>xendit-java-lib</artifactId>
+			<version>1.20.4</version>
+		</dependency>
 	</dependencies>
 
 	<build>

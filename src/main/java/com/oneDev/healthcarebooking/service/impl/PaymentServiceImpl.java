@@ -12,6 +12,7 @@ import com.oneDev.healthcarebooking.repository.AppointmentRepository;
 import com.oneDev.healthcarebooking.repository.DoctorSpecializationRepository;
 import com.oneDev.healthcarebooking.repository.PaymentRepository;
 import com.oneDev.healthcarebooking.service.PaymentService;
+import com.oneDev.healthcarebooking.service.XenditService;
 import com.oneDev.healthcarebooking.utils.TransactionIdGenerator;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class PaymentServiceImpl implements PaymentService {
     private final PaymentRepository paymentRepository;
     private final AppointmentRepository appointmentRepository;
     private final DoctorSpecializationRepository specializationRepository;
+    private final XenditService xenditService;
 
     @Override @Transactional
     public PaymentResponse createPayment(Appointment appointment) {
@@ -50,8 +52,9 @@ public class PaymentServiceImpl implements PaymentService {
                 .amount(amount)
                 .status(PaymentStatus.PENDING)
                 .build();
-        Payment savedPayment = paymentRepository.save(payment);
-        return PaymentResponse.from(savedPayment);
+
+         paymentRepository.save(payment);
+        return xenditService.createPayment(payment);
     }
 
     @Override

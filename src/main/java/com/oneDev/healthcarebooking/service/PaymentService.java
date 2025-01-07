@@ -9,4 +9,5 @@ public interface PaymentService {
     PaymentResponse cancelPayment (Long paymentId);
     PaymentResponse recalculatePayment (Appointment updateAppointment);
     PaymentResponse cancelPaymentForAppointment (Long appointmentId);
+
 }

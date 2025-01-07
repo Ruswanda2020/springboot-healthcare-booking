@@ -41,6 +41,12 @@ public class Payment {
     @Column(nullable = false)
     private PaymentStatus status;
 
+    @Column(nullable = false, name = "xendit_invoice_id")
+    private String xenditInvoiceId;
+
+    @Column(nullable = false, name = "xendit_payment_status")
+    private String xenditPaymentStatus;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;

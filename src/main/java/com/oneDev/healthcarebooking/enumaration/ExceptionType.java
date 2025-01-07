@@ -15,7 +15,9 @@ public enum ExceptionType {
     FORBIDDEN("Access denied", 403),
     INTERNAL_SERVER_ERROR("Internal server error", 500),
     APPOINTMENT_CONFLICT("Appointment conflict occurred", 409),
-    RESOURCE_CONFLICT("Resource conflict occurred", 409);
+    RESOURCE_CONFLICT("Resource conflict occurred", 409),
+    PAYMENT_NOT_FOUND("Payment record not found", 404);
+
 
 
 

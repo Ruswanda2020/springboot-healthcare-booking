@@ -25,4 +25,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     List<Payment> findByStatus(PaymentStatus status);
 
     Optional<Payment> findByAppointmentId(Long appointmentId);
+
+    Optional<Payment> findByXenditInvoiceId(String xenditInvoiceId);
 }

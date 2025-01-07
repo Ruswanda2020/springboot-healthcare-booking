@@ -13,6 +13,7 @@ import com.oneDev.healthcarebooking.service.AppointmentService;
 import com.oneDev.healthcarebooking.service.PaymentService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AppointmentServiceImpl implements AppointmentService {
 
     // Repositori yang digunakan untuk berbagai operasi database
@@ -71,10 +73,20 @@ public class AppointmentServiceImpl implements AppointmentService {
                         fee.getConsultationType()
                 );
 
+        log.info("DoctorAvailability for doctorId: {}, date: {}, startTime: {}, endTime: {}, consultationType: {} - is available: {}",
+                doctor.getId(),
+                request.getAppointmentDate(),
+                request.getStartTime(),
+                request.getEndTime(),
+                fee.getConsultationType(),
+                isDoctorAvailable);
+
         // Jika dokter tidak tersedia, lemparkan exception
         if(!isDoctorAvailable) {
+            log.error("Doctor is not available for the given appointment time: {} to {} on {}", request.getStartTime(), request.getEndTime(), request.getAppointmentDate());
             throw new ApplicationException(ExceptionType.APPOINTMENT_CONFLICT, "Doctor is not available");
         }
+
 
         // 7. Memeriksa apakah ada jadwal appointment yang tumpang tindih
         List<Appointment> overlappingAppointments = appointmentRepository.findOverlappingAppointments(

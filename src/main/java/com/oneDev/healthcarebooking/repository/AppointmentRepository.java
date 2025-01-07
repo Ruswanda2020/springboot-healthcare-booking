@@ -22,8 +22,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             "AND appointment_date = :date " +
             "AND consultation_type = :consultationType " +
             "AND status = 'SCHEDULED' " +
-            "AND ((start_time < :endTime AND end_time > :startTime )) " +
-            "OR ((start_time = :startTime AND end_time = :endTime)) " +
+            "AND ((start_time < :endTime AND end_time > :startTime) " +
+            "OR (start_time = :startTime AND end_time = :endTime)) " +
             "FOR UPDATE",
             nativeQuery = true)
     List<Appointment> findOverlappingAppointments(
@@ -32,7 +32,8 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
             @Param("startTime") LocalTime startTime,
             @Param("endTime") LocalTime endTime,
             @Param("consultationType") String consultationType
-            );
+    );
+
 
     @Query(value = "SELECT * FROM appointment " +
             "WHERE patient_id = :patientId " +
