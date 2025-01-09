@@ -14,6 +14,8 @@ import com.oneDev.healthcarebooking.repository.PaymentRepository;
 import com.oneDev.healthcarebooking.service.PaymentService;
 import com.oneDev.healthcarebooking.service.XenditService;
 import com.oneDev.healthcarebooking.utils.TransactionIdGenerator;
+import com.xendit.exception.XenditException;
+import com.xendit.model.Invoice;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -59,11 +61,25 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Override
     public PaymentResponse findByAppointmentId(Long appointmentId) {
-        Payment savedPayment = paymentRepository.findByAppointmentId(appointmentId)
+        return paymentRepository.findByAppointmentId(appointmentId)
+                .map(payment -> {
+                    if (payment.getStatus() == PaymentStatus.PENDING) {
+                        try {
+                            Invoice invoice = Invoice.getById(payment.getXenditInvoiceId());
+                            PaymentResponse paymentResponse = PaymentResponse.from(payment);
+                            paymentResponse.setPaymentUrl(invoice.getInvoiceUrl());
+                            return paymentResponse;
+                        } catch (XenditException e) {
+                            throw new ApplicationException(ExceptionType.RESOURCE_NOT_FOUND,
+                                    "Payment with appointment " + appointmentId + " not found");
+                        }
+                    }
+                    return PaymentResponse.from(payment);
+                })
                 .orElseThrow(() -> new ApplicationException(ExceptionType.RESOURCE_NOT_FOUND,
                         "Payment with appointment " + appointmentId + " not found"));
-        return PaymentResponse.from(savedPayment);
     }
+
 
     @Override @Transactional
     public PaymentResponse cancelPayment(Long paymentId) {

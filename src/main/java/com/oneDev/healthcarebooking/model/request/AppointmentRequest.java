@@ -27,14 +27,11 @@ public class AppointmentRequest {
     private Long doctorSpecializationId;
 
     @NotNull(message = "Appointment is required")
-    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate appointmentDate;
 
     @NotNull(message = "Start time is required")
-    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime startTime;
 
     @NotNull(message = "End time is required")
-    @JsonFormat(pattern = "HH:mm:ss")
     private LocalTime endTime;
 }

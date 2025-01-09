@@ -29,7 +29,7 @@ public class AppointmentResponse {
     private LocalDate appointmentDate;
     private LocalTime startTime;
     private LocalTime endTime;
-    private String consultationType;
+    private String consultationType;    
     private AppointmentStatus status;
     private PaymentResponse paymentDetails;
 

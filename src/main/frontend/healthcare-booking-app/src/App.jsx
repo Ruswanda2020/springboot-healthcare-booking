@@ -3,11 +3,13 @@ import { BrowserRouter as Router, Route, Routes, Navigate } from 'react-router-d
 import LoginPage from './components/LoginPage.jsx';
 import HomePage from './components/HomePage.jsx';
 import RegisterPage from './components/RegisterPage.jsx';
+import AppointmentDetail from './components/AppointmentDetail.jsx';
 
-// Protected Route wrapper
+// Wrapper untuk Route yang dilindungi
 const ProtectedRoute = ({ children }) => {
   const token = localStorage.getItem('token');
   if (!token) {
+    // Jika tidak ada token, arahkan ke halaman login
     return <Navigate to="/login" replace />;
   }
   return children;
@@ -19,6 +21,8 @@ function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        
+        {/* Route yang dilindungi */}
         <Route
           path="/home"
           element={
@@ -27,6 +31,16 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+          path="/appointments/:id"
+          element={
+            <ProtectedRoute>
+              <AppointmentDetail />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Jika path tidak ditemukan, arahkan ke Home */}
         <Route path="/" element={<Navigate to="/home" replace />} />
       </Routes>
     </Router>

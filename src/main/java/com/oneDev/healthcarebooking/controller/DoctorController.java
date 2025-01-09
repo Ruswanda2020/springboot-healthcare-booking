@@ -12,6 +12,7 @@ import com.oneDev.healthcarebooking.utils.UserInfoHelper;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,26 +25,29 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/doctor")
 @RestController
 @SecurityRequirement(name = "Bearer")
+@Slf4j
 public class DoctorController {
 
     private final DoctorService doctorService;
     private final UserInfoHelper userInfoHelper;
 
 
-    @GetMapping
-    public ResponseEntity<Page<DoctorResponse>> search(
-            @RequestParam(required = false, defaultValue = "name") String keyword,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "name,asc") String[] sort){
+        @GetMapping
+        public ResponseEntity<Page<DoctorResponse>> search(
+                @RequestParam(required = false, defaultValue = "name") String keyword,
+                @RequestParam(defaultValue = "0") int page,
+                @RequestParam(defaultValue = "10") int size,
+                @RequestParam(defaultValue = "name,asc") String[] sort){
+            System.out.println("Received request with keyword: " + keyword);
 
-        // Parse sort parameters using PageUtil
-        Sort sortOrder = Sort.by(PageUtil.parsSortOrderRequest(sort));
-        Pageable pageable = PageRequest.of(page, size, sortOrder);
 
-        Page<DoctorResponse> doctors = doctorService.getAllDoctors(keyword, pageable);
-        return ResponseEntity.ok(doctors);
-    }
+            // Parse sort parameters using PageUtil
+            Sort sortOrder = Sort.by(PageUtil.parsSortOrderRequest(sort));
+            Pageable pageable = PageRequest.of(page, size, sortOrder);
+
+            Page<DoctorResponse> doctors = doctorService.getAllDoctors(keyword, pageable);
+            return ResponseEntity.ok(doctors);
+        }
 
     @GetMapping("/{id}")
     public ResponseEntity<DoctorResponse> getDoctorById(@PathVariable("id") Long id) {

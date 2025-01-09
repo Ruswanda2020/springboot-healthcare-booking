@@ -83,10 +83,8 @@ public class AppointmentServiceImpl implements AppointmentService {
 
         // Jika dokter tidak tersedia, lemparkan exception
         if(!isDoctorAvailable) {
-            log.error("Doctor is not available for the given appointment time: {} to {} on {}", request.getStartTime(), request.getEndTime(), request.getAppointmentDate());
             throw new ApplicationException(ExceptionType.APPOINTMENT_CONFLICT, "Doctor is not available");
         }
-
 
         // 7. Memeriksa apakah ada jadwal appointment yang tumpang tindih
         List<Appointment> overlappingAppointments = appointmentRepository.findOverlappingAppointments(

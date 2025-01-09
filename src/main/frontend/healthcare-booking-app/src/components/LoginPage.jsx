@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Form, Button, Container, Alert, Spinner } from "react-bootstrap";
+import API_CONFIG from '../config/api.config';
+
 
 const LoginPage = () => {
     const navigate = useNavigate();
@@ -22,11 +24,12 @@ const LoginPage = () => {
         setError(""); // Reset error state
 
         try {
-            const response = await fetch("http://localhost:8080/api/v1/auth/login", {
+            const response = await fetch(`${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.LOGIN}`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Accept: "*/*",
+                    'ngrok-skip-browser-warning': true,
                 },
                 body: JSON.stringify(formData),
                 credentials: "include",

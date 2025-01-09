@@ -24,6 +24,7 @@ public class AppointmentController {
     private final AppointmentService appointmentService;
     private final UserInfoHelper userInfoHelper;
 
+
     @PostMapping
     public ResponseEntity<AppointmentResponse> createAppointment(@Valid @RequestBody AppointmentRequest appointment) {
         AppointmentResponse response = appointmentService.bookAppointment(appointment);
@@ -55,5 +56,10 @@ public class AppointmentController {
         return ResponseEntity.ok(responses);
     }
 
-
+    @GetMapping("/{appointmentId}")
+    public ResponseEntity<AppointmentResponse> getById(@PathVariable("appointmentId") Long appointmentId) {
+        UserInfo userInfo = userInfoHelper.getCurrentUserInfo();
+        AppointmentResponse response = appointmentService.findById(appointmentId);
+        return ResponseEntity.ok(response);
+    }
 }

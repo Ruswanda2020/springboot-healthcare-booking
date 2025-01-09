@@ -1,20 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Navbar, Nav, Container, Button, Form, InputGroup, Modal } from "react-bootstrap";
+import { Navbar, Nav, Container, Button, Form, InputGroup, Modal, Row, Col } from "react-bootstrap";
+import DoctorCard from "./DoctorCard";
+import API_CONFIG from "../config/api.config";
 
 const HomePage = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [userData, setUserData] = useState(null);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [pagination, setPagination] = useState({
+    currentPage: 0,
+    totalPages: 0,
+    totalElements: 0,
+    size: 10,
+  });
 
-  // Mengambil data user dari localStorage
+  // Fetch user data from localStorage
   useEffect(() => {
     try {
       const storedUserData = localStorage.getItem("userData");
       if (storedUserData) {
-        const parsedData = JSON.parse(storedUserData);
-        setUserData(parsedData);
+        setUserData(JSON.parse(storedUserData));
       } else {
         console.warn("No userData found in localStorage.");
       }
@@ -23,21 +33,67 @@ const HomePage = () => {
     }
   }, []);
 
+  
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
-    setShowLogoutModal(false); // Tutup modal
-    navigate("/login"); // Arahkan ke halaman login
+    setShowLogoutModal(false);
+    navigate("/login");
   };
+
+  const searchDoctors = async (page = 0) => {
+    setLoading(true);
+    setError("");
+    const sort = ["name,asc"];
+    const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DOCTORS}?keyword=${searchQuery}&page=${page}&size=${pagination.size}&sort=${encodeURIComponent(sort.join(","))}`;
+    console.log("Fetching data from:", url);  // Debugging the URL
+    
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(url, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+          Accept: "application/json",
+         'ngrok-skip-browser-warning': true,
+        },
+      });
+  
+      
+      // Log the response headers and body for debugging
+      // console.log("Response headers:", response.headers);
+      // const text = await response.text();
+      // console.log("Response body:", text);
+    
+      if (response.ok) {
+        const data = await response.json(); // Parse as JSON
+        setDoctors(data.content);
+        setPagination({
+          currentPage: data.number,
+          totalPages: data.totalPages,
+          totalElements: data.totalElements,
+          size: data.size,
+        });
+      } else {
+        throw new Error('Failed to fetch data');
+      }
+    } catch (err) {
+      setError(err.message || "Failed to connect to the server");
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  
+  
 
   const handleSearch = (e) => {
     e.preventDefault();
-    if (!searchQuery.trim()) {
-      alert("Please enter a search query.");
-      return;
-    }
-    // TODO: Tambahkan logika pencarian di sini
-    console.log("Searching for:", searchQuery);
+    searchDoctors(0);
+  };
+
+  const handlePageChange = (newPage) => {
+    searchDoctors(newPage);
   };
 
   return (
@@ -57,7 +113,7 @@ const HomePage = () => {
             <Button
               variant="outline-danger"
               size="sm"
-              onClick={() => setShowLogoutModal(true)} // Tampilkan modal saat klik logout
+              onClick={() => setShowLogoutModal(true)}
             >
               Logout
             </Button>
@@ -82,6 +138,59 @@ const HomePage = () => {
           </InputGroup>
         </Form>
       </Container>
+
+      {/* Doctor Cards Section */}
+      <div className="mt-4">
+        {loading && (
+          <div className="text-center py-4">
+            <span className="text-secondary">Loading...</span>
+          </div>
+        )}
+        {error && (
+          <div className="text-center py-4">
+            <span className="text-danger">{error}</span>
+          </div>
+        )}
+        {!loading && !error && doctors.length === 0 && searchQuery && (
+          <div className="text-center py-4">
+            <span className="text-muted">No doctors found</span>
+          </div>
+        )}
+        {!loading && !error && doctors.length > 0 && (
+          <Container>
+            <Row className="g-3">
+              {doctors.map((doctor) => (
+                <Col key={doctor.id} xs={12} md={6} lg={4}>
+                  <DoctorCard doctor={doctor} />
+                </Col>
+              ))}
+            </Row>
+          </Container>
+        )}
+        {pagination.totalPages > 1 && (
+          <div className="d-flex justify-content-center align-items-center mt-4">
+            <Button
+              onClick={() => handlePageChange(pagination.currentPage - 1)}
+              disabled={pagination.currentPage === 0}
+              variant="outline-secondary"
+              className="me-2"
+            >
+              Previous
+            </Button>
+            <span className="text-muted">
+              Page {pagination.currentPage + 1} of {pagination.totalPages}
+            </span>
+            <Button
+              onClick={() => handlePageChange(pagination.currentPage + 1)}
+              disabled={pagination.currentPage === pagination.totalPages - 1}
+              variant="outline-secondary"
+              className="ms-2"
+            >
+              Next
+            </Button>
+          </div>
+        )}
+      </div>
 
       {/* Logout Modal */}
       <Modal show={showLogoutModal} onHide={() => setShowLogoutModal(false)} centered>
