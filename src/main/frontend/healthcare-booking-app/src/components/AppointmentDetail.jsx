@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import API_CONFIG from '../config/api.config';
 import { Spinner, Card, Button, Container, Row, Col, Alert, Badge } from 'react-bootstrap';
+import { useLocation } from 'react-router-dom';
 
 const AppointmentDetail = () => {
   const { id } = useParams();
@@ -12,6 +13,11 @@ const AppointmentDetail = () => {
   const [doctorData, setDoctorData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [canellingId, setCanellingId] = useState(null);
+  const location = useLocation();
+  const successMessage = location.state?.message;
+  const messageType = location.state?.type; 
+
 
   useEffect(() => {
     const fetchAllData = async () => {
@@ -130,6 +136,43 @@ const AppointmentDetail = () => {
     );
   }
 
+const handleCancel = async (appointmentId) => {
+  if(!window.confirm('Are you sure you want to cancel this appointment?')) {
+    return;
+  }
+
+  setCanellingId(appointmentId);
+  try {
+    const token = localStorage.getItem('token');
+    const response = await fetch(`${API_CONFIG.BASE_URL}/api/v1/appointments/cancel/${appointmentId}`, {
+      headers: {
+        httpMethod: 'PUT',
+        accept: '*/*',
+        Authorization: `Bearer ${token}`,
+        'ngrok-skip-browser-warning': true,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to cancel appointment");
+    }
+
+    navigate( `/appointments/${appointmentId}`, {
+      state: {
+        message: "Appointment has been cancelled successfully",
+        type: "success",
+      },
+    });
+
+  } catch (error) {
+    setError(error.message);
+  }finally {
+    setCanellingId(null);
+  }
+};
+
+
+
   if (!appointmentData || !patientData) {
     return (
       <Container className="d-flex justify-content-center align-items-center min-vh-100">
@@ -144,105 +187,115 @@ const AppointmentDetail = () => {
   }
 
   return (
-    <Container className="py-4 d-flex justify-content-center">
-      <Card style={{ maxWidth: '600px', width: '100%' }}>
-        <Card.Header className="bg-primary text-white">Appointment Details</Card.Header>
-        <Card.Body>
-          <Row className="mb-3">
-            <Col>
-              <h6>Patient</h6>
-              <p>{patientData.user_name}</p>
-            </Col>
-            <Col>
-              <h6>Doctor</h6>
-              <p>{doctorData?.name || 'Loading...'}</p>
-            </Col>
-          </Row>
+    <>
+      {successMessage && (
+        <Container className="my-3">
+          <Alert variant={messageType === 'success' ? 'success' : 'info'} className="text-center">
+            {successMessage}
+          </Alert>
+        </Container>
+      )}
+      <Container className="py-4 d-flex justify-content-center">
+        <Card style={{ maxWidth: '600px', width: '100%' }}>
+          <Card.Header className="bg-primary text-white">Appointment Details</Card.Header>
+          <Card.Body>
+            <Row className="mb-3">
+              <Col>
+                <h6>Patient</h6>
+                <p>{patientData.user_name}</p>
+              </Col>
+              <Col>
+                <h6>Doctor</h6>
+                <p>{doctorData?.name || 'Loading...'}</p>
+              </Col>
+            </Row>
 
-          <Row className="mb-3">
-            <Col>
-              <h6>Hospital</h6>
-              <p>{doctorData?.hospital_name || 'Loading...'}</p>
-            </Col>
-            <Col>
-              <h6>Consultation Type</h6>
-              <p>{appointmentData.consultation_type}</p>
-            </Col>
-          </Row>
+            <Row className="mb-3">
+              <Col>
+                <h6>Hospital</h6>
+                <p>{doctorData?.hospital_name || 'Loading...'}</p>
+              </Col>
+              <Col>
+                <h6>Consultation Type</h6>
+                <p>{appointmentData.consultation_type}</p>
+              </Col>
+            </Row>
 
-          <Row className="mb-3">
-            <Col>
-              <h6>Date</h6>
-              <p>{formatDate(appointmentData.appointment_date)}</p>
-            </Col>
-            <Col>
-              <h6>Time</h6>
-              <p>{`${appointmentData.start_time + "0"} - ${appointmentData.end_time + "0"}`} </p>
-            </Col>
-          </Row>
+            <Row className="mb-3">
+              <Col>
+                <h6>Date</h6>
+                <p>{formatDate(appointmentData.appointment_date)}</p>
+              </Col>
+              <Col>
+                <h6>Time</h6>
+                <p>{`${appointmentData.start_time + "0"} - ${appointmentData.end_time + "0"}`}</p>
+              </Col>
+            </Row>
 
-          <Row className="mb-3">
-            <Col>
-              <h6>Appointment Status</h6>
-              <Badge bg={
-                appointmentData.status === 'PENDING'
-                  ? 'warning'
-                  : appointmentData.status === 'CONFIRMED'
-                  ? 'success'
-                  : 'secondary'
-              }>
-                {appointmentData.status}
-              </Badge>
-            </Col>
-            <Col>
-              <h6>Payment Status</h6>
-              <Badge bg={
-                appointmentData.payment_details.status === 'PENDING'
-                  ? 'warning'
-                  : appointmentData.payment_details.status === 'PAID'
-                  ? 'success'
-                  : 'secondary'
-              }>
-                {appointmentData.payment_details.status}
-              </Badge>
-            </Col>
-          </Row>
+            <Row className="mb-3">
+              <Col>
+                <h6>Appointment Status</h6>
+                <Badge bg={
+                  appointmentData.status === 'PENDING'
+                    ? 'warning'
+                    : appointmentData.status === 'CONFIRMED'
+                    ? 'success'
+                    : 'secondary'
+                }>
+                  {appointmentData.status}
+                </Badge>
+              </Col>
+              <Col>
+                <h6>Payment Status</h6>
+                <Badge bg={
+                  appointmentData.payment_details.status === 'PENDING'
+                    ? 'warning'
+                    : appointmentData.payment_details.status === 'PAID'
+                    ? 'success'
+                    : 'secondary'
+                }>
+                  {appointmentData.payment_details.status}
+                </Badge>
+              </Col>
+            </Row>
 
-          {appointmentData.payment_details && (
-            <>
-              <Row className="mb-3">
-                <Col>
-                  <h6>Payment Amount</h6>
-                  <p>
-                    {new Intl.NumberFormat('id-ID', {
-                      style: 'currency',
-                      currency: 'IDR',
-                    }).format(appointmentData.payment_details.amount)}
-                  </p>
-                </Col>
-              </Row>
-            </>
-          )}
+            {appointmentData.payment_details && (
+              <>
+                <Row className="mb-3">
+                  <Col>
+                    <h6>Payment Amount</h6>
+                    <p>
+                      {new Intl.NumberFormat('id-ID', {
+                        style: 'currency',
+                        currency: 'IDR',
+                      }).format(appointmentData.payment_details.amount)}
+                    </p>
+                  </Col>
+                </Row>
+              </>
+            )}
 
-          {shouldShowPaymentButton() && (
-            <Button
-              variant="primary"
-              className="w-100"
-              onClick={handlePayment}
-            >
-              Proceed to Payment
-            </Button>
-          )}
+            {shouldShowPaymentButton() && (
+              <Button
+                variant="primary"
+                className="w-100"
+                onClick={handlePayment}
+              >
+                Proceed to Payment
+              </Button>
+            )}
 
-          <div className="text-center mt-3">
-            <Button variant="link" onClick={() => navigate('/home')}>
-              Back to Home
-            </Button>
-          </div>
-        </Card.Body>
-      </Card>
-    </Container>
+            <div className="text-center mt-3">
+              <Button variant="link" onClick={() => navigate('/appointments')}>
+                Back to Appointment List
+              </Button>
+            </div>
+          </Card.Body>
+        </Card>
+      </Container>
+    </>
   );
+
 };
 
 export default AppointmentDetail;

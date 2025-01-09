@@ -4,6 +4,7 @@ import LoginPage from './components/LoginPage.jsx';
 import HomePage from './components/HomePage.jsx';
 import RegisterPage from './components/RegisterPage.jsx';
 import AppointmentDetail from './components/AppointmentDetail.jsx';
+import AppointmentList from './components/AppointmenList.jsx';
 
 // Wrapper untuk Route yang dilindungi
 const ProtectedRoute = ({ children }) => {
@@ -36,6 +37,14 @@ function App() {
           element={
             <ProtectedRoute>
               <AppointmentDetail />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute>
+              <AppointmentList />
             </ProtectedRoute>
           }
         />

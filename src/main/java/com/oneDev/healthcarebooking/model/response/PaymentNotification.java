@@ -34,7 +34,8 @@ public class PaymentNotification implements Serializable {
     private String externalId;
     private BigDecimal paidAmount;
     private String payerEmail;
-    private String walletType;
+    @JsonProperty(value = "ewallet_type")
+    private String ewalletType;
     private String merchantName;
     private String paymentMethod;
     private String paymentChannel;

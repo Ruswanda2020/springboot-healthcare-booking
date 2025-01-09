@@ -33,8 +33,6 @@ const HomePage = () => {
     }
   }, []);
 
-  
-
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
@@ -48,23 +46,17 @@ const HomePage = () => {
     const sort = ["name,asc"];
     const url = `${API_CONFIG.BASE_URL}${API_CONFIG.ENDPOINTS.DOCTORS}?keyword=${searchQuery}&page=${page}&size=${pagination.size}&sort=${encodeURIComponent(sort.join(","))}`;
     console.log("Fetching data from:", url);  // Debugging the URL
-    
+
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(url, {
         headers: {
           Authorization: `Bearer ${token}`,
           Accept: "application/json",
-         'ngrok-skip-browser-warning': true,
+          'ngrok-skip-browser-warning': true,
         },
       });
-  
-      
-      // Log the response headers and body for debugging
-      // console.log("Response headers:", response.headers);
-      // const text = await response.text();
-      // console.log("Response body:", text);
-    
+
       if (response.ok) {
         const data = await response.json(); // Parse as JSON
         setDoctors(data.content);
@@ -83,9 +75,6 @@ const HomePage = () => {
       setLoading(false);
     }
   };
-  
-  
-  
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -98,28 +87,48 @@ const HomePage = () => {
 
   return (
     <div className="vh-100 d-flex flex-column">
-      {/* Navigation Bar */}
-      <Navbar bg="light" expand="lg" className="shadow-sm">
-        <Container>
-          <Navbar.Brand className="fw-bold">Healthcare System</Navbar.Brand>
-          <Nav className="ms-auto">
-            <Nav.Item className="me-3">
-              {userData ? (
-                <span className="text-muted">Welcome, {userData.username}</span>
-              ) : (
-                <span className="text-muted">Welcome, Guest</span>
-              )}
-            </Nav.Item>
-            <Button
-              variant="outline-danger"
-              size="sm"
-              onClick={() => setShowLogoutModal(true)}
-            >
-              Logout
-            </Button>
-          </Nav>
-        </Container>
-      </Navbar>
+{/* Navigation Bar */}
+<Navbar bg="light" expand="lg" className="shadow-sm">
+  <Container>
+    <Navbar.Brand className="fw-bold">Healthcare System</Navbar.Brand>
+    <Nav className="ms-auto align-items-center">
+      <Nav.Item className="me-3">
+        {userData ? (
+          <span className="text-muted">Welcome, {userData.username}</span>
+        ) : (
+          <span className="text-muted">Welcome, Guest</span>
+        )}
+      </Nav.Item>
+      <Nav.Item className="me-3">
+        <Nav.Link
+          href="/appointments"
+          style={{ 
+            transition: "box-shadow 0.2s ease, transform 0.2s ease" 
+          }}
+          onMouseDown={(e) => {
+            e.currentTarget.style.boxShadow = "0px 4px 10px rgba(0, 0, 0, 0.2)";
+            e.currentTarget.style.transform = "scale(0.98)";
+          }}
+          onMouseUp={(e) => {
+            e.currentTarget.style.boxShadow = "none";
+            e.currentTarget.style.transform = "scale(1)";
+          }}
+        >
+          My Appointments
+        </Nav.Link>
+      </Nav.Item>
+      <Button
+        variant="outline-danger"
+        size="sm"
+        onClick={() => setShowLogoutModal(true)}
+      >
+        Logout
+      </Button>
+    </Nav>
+  </Container>
+</Navbar>
+
+
 
       {/* Search Section */}
       <Container className="flex-grow-1 d-flex flex-column justify-content-center align-items-center">
